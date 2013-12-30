@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<style>
+	canvas{
+		border : solid 2px #b37c7f;
+	}
+</style>
+<script>
+	var ctx;
+	var ax = 0;
+	var ay = 0;
+	var balls = [];
+
+
+
+	function makeBall(){
+		return {x:Math.random()*200,y:Math.random()*200,vx:10,vy:0,ex:Math.random()/2+0.5,ey:Math.random()/2+0.5};
+	}
+	function main(){
+		for(var i=0;i<40;i++)balls.push(makeBall());
+		var cvs = document.getElementById("cvs");
+		ctx = cvs.getContext('2d');
+		window.setInterval(drawAll,10);
+
+		cvs.addEventListener("mousemove",setGravity);
+	}
+	function drawAll(){
+		for(var i=0;i<balls.length;i++){
+			draw(balls[i]);
+		}
+	}
+	function draw(ball){
+		//collisionAll();
+		ctx.fillStyle = "white";
+		ctx.fillRect(ball.x-10,ball.y-10,20,20);
+		update(ball);
+		ctx.fillStyle = "black";
+		ctx.beginPath();
+		ctx.arc(ball.x,ball.y,10,0,Math.PI*2,false);
+		ctx.fill();
+	}
+	function update(ball){
+		ball.vx += ax;
+		ball.vy += ay;
+		ball.x += ball.vx;
+		ball.y += ball.vy;
+		if(ball.y > 500 || ball.y < 0)ball.vy*=-ball.ey;
+		if(ball.y > 501)ball.y = 498;
+		if(ball.y <-1)ball.y = 1;
+
+		if(ball.x > 500 || ball.x < 0) ball.vx*=-ball.ex; 
+		if(ball.x > 501)ball.x = 498;
+		if(ball.x < -1)ball.x = 1;
+	}
+
+	function setGravity(e){
+		ax = -(250-e.clientX-cvs.offsetLeft)/150;
+		ay = -(250-e.clientY-cvs.offsetTop)/150;
+
+	}
+
+	function collisionAll(){
+		for(var i=0;i<balls.length-1;i++){
+			for(var j=balls.length-1;j>i;j--){
+				collision(balls[i],balls[j]);
+			}
+		}
+	}
+
+	function collision(a,b){
+		if(check(a,b)){
+			a.vx = (a.vx+b.vx)/2;
+			b.vx = -a.vx;
+			a.vy = (a.vy+b.vy)/2;
+			b.vy = -a.vy;
+		}
+	}
+
+	function check(a,b){
+		if(distance(a,b)<25)return true;
+		else return false;
+	}
+	function distance(a,b){
+		return Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2);
+	}
+	window.onload=main;
+</script>
+<body>
+	<canvas width="500" height="500" id="cvs"></canvas>
+</body>
+</html>
